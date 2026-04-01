@@ -1,0 +1,119 @@
+@import "tailwindcss";
+
+@theme {
+  --font-display: "Anton", sans-serif;
+  --font-serif: "Cormorant Garamond", serif;
+  --font-sans: "Inter", sans-serif;
+}
+
+.marquee-container {
+  overflow: hidden;
+  white-space: nowrap;
+  display: flex;
+  width: 100%;
+}
+
+.marquee-content {
+  display: flex;
+  animation: marquee 40s linear infinite;
+}
+
+@keyframes marquee {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+.noise-bg {
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+  opacity: 0.04;
+  pointer-events: none;
+}
+
+@keyframes spin-slow {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.animate-spin-slow {
+  animation: spin-slow 12s linear infinite;
+}
+
+/* Glitch Effect */
+.glitch-wrapper {
+  position: relative;
+}
+
+.glitch-text {
+  position: relative;
+  display: inline-block;
+}
+
+.glitch-text::before,
+.glitch-text::after {
+  content: attr(data-text);
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: transparent;
+}
+
+.glitch-text::before {
+  left: 2px;
+  text-shadow: -2px 0 #ff00c1;
+  clip: rect(44px, 450px, 56px, 0);
+  animation: glitch-anim 5s infinite linear alternate-reverse;
+}
+
+.glitch-text::after {
+  left: -2px;
+  text-shadow: -2px 0 #00fff9, 2px 2px #ff00c1;
+  animation: glitch-anim2 5s infinite linear alternate-reverse;
+}
+
+@keyframes glitch-anim {
+  0% { clip: rect(11px, 9999px, 86px, 0); }
+  20% { clip: rect(65px, 9999px, 12px, 0); }
+  40% { clip: rect(32px, 9999px, 98px, 0); }
+  60% { clip: rect(87px, 9999px, 23px, 0); }
+  80% { clip: rect(43px, 9999px, 54px, 0); }
+  100% { clip: rect(12px, 9999px, 76px, 0); }
+}
+
+@keyframes glitch-anim2 {
+  0% { clip: rect(65px, 9999px, 100px, 0); }
+  20% { clip: rect(12px, 9999px, 43px, 0); }
+  40% { clip: rect(87px, 9999px, 21px, 0); }
+  60% { clip: rect(34px, 9999px, 87px, 0); }
+  80% { clip: rect(98px, 9999px, 12px, 0); }
+  100% { clip: rect(45px, 9999px, 65px, 0); }
+}
+
+/* Pixel Art Cloud Generator */
+.pixel-cloud {
+  width: 20px;
+  height: 20px;
+  background: currentColor;
+  box-shadow: 
+    20px 0 0 0 currentColor,
+    40px 0 0 0 currentColor,
+    60px 0 0 0 currentColor,
+    0px 20px 0 0 currentColor,
+    20px 20px 0 0 currentColor,
+    40px 20px 0 0 currentColor,
+    60px 20px 0 0 currentColor,
+    80px 20px 0 0 currentColor,
+    -20px 40px 0 0 currentColor,
+    0px 40px 0 0 currentColor,
+    20px 40px 0 0 currentColor,
+    40px 40px 0 0 currentColor,
+    60px 40px 0 0 currentColor,
+    80px 40px 0 0 currentColor,
+    100px 40px 0 0 currentColor,
+    0px 60px 0 0 currentColor,
+    20px 60px 0 0 currentColor,
+    40px 60px 0 0 currentColor,
+    60px 60px 0 0 currentColor,
+    80px 60px 0 0 currentColor;
+}
