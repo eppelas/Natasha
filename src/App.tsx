@@ -45,22 +45,24 @@ type StatCard = {
   icon: React.ComponentType<{ className?: string }>;
 };
 
-const IMAGE_FACE = '/images/natasha-loading-face.png';
-const IMAGE_HERO = '/images/natasha-second-big.jpg';
-const IMAGE_CAKE = '/images/birthday-guests/transparent_output_5.png';
-const IMAGE_MORNING_POSTER = '/images/moments/morning-photo.jpg';
-const IMAGE_DANCE_POSTER = '/images/moments/dance-poster.jpg';
-const IMAGE_DANCE_WITH_NATASHA_POSTER = '/images/moments/dance-with-natasha-poster.jpg';
-const IMAGE_EXTRA_CIRCLE_POSTER = '/images/moments/extra-circle-poster.jpg';
-const VIDEO_MORNING = '/videos/morning-prelude.mov';
-const VIDEO_DANCE = '/videos/dance-floor.mp4';
-const VIDEO_DANCE_WITH_NATASHA = '/videos/dance-with-natasha.mp4';
-const VIDEO_EXTRA_CIRCLE = '/videos/extra-circle.mov';
+const asset = (path: string) => `${import.meta.env.BASE_URL}${path.replace(/^\/+/, '')}`;
+
+const IMAGE_FACE = asset('images/natasha-loading-face.png');
+const IMAGE_HERO = asset('images/natasha-second-big.jpg');
+const IMAGE_CAKE = asset('images/birthday-guests/transparent_output_5.png');
+const IMAGE_MORNING_POSTER = asset('images/moments/morning-photo.jpg');
+const IMAGE_DANCE_POSTER = asset('images/moments/dance-poster.jpg');
+const IMAGE_DANCE_WITH_NATASHA_POSTER = asset('images/moments/dance-with-natasha-poster.jpg');
+const IMAGE_EXTRA_CIRCLE_POSTER = asset('images/moments/extra-circle-poster.jpg');
+const VIDEO_MORNING = asset('videos/morning-prelude.mov');
+const VIDEO_DANCE = asset('videos/dance-floor.mp4');
+const VIDEO_DANCE_WITH_NATASHA = asset('videos/dance-with-natasha.mp4');
+const VIDEO_EXTRA_CIRCLE = asset('videos/extra-circle.mov');
 
 const guestStickers: StickerItem[] = [
   {
     id: 'guest-1',
-    frames: ['/images/birthday-guests/1-1.png', '/images/birthday-guests/1-2.png'],
+    frames: [asset('images/birthday-guests/1-1.png'), asset('images/birthday-guests/1-2.png')],
     caption: 'один из тех, кто сначала тихий, а потом уже в центре танца',
     className: 'relative md:absolute left-0 top-0 w-full md:w-44 rotate-[-5deg]',
     cycleMs: 2600,
@@ -69,7 +71,7 @@ const guestStickers: StickerItem[] = [
   },
   {
     id: 'guest-2',
-    frames: ['/images/birthday-guests/2-1.png', '/images/birthday-guests/2-2.png'],
+    frames: [asset('images/birthday-guests/2-1.png'), asset('images/birthday-guests/2-2.png')],
     caption: 'тот, кто всегда уверенно кивает',
     className: 'relative md:absolute left-0 top-0 w-full md:w-44 rotate-[4deg]',
     cycleMs: 2400,
@@ -78,7 +80,7 @@ const guestStickers: StickerItem[] = [
   },
   {
     id: 'guest-3',
-    frames: ['/images/birthday-guests/3-1.png', '/images/birthday-guests/3-2.png'],
+    frames: [asset('images/birthday-guests/3-1.png'), asset('images/birthday-guests/3-2.png')],
     caption: 'спокойствие, собака и философия',
     className: 'relative md:absolute left-0 top-0 w-full md:w-44 rotate-[-2deg]',
     cycleMs: 3000,
@@ -87,7 +89,7 @@ const guestStickers: StickerItem[] = [
   },
   {
     id: 'guest-4',
-    frames: ['/images/birthday-guests/transparent_output_7.png'],
+    frames: [asset('images/birthday-guests/transparent_output_7.png')],
     caption: 'блестящее платье: да. внутренний свет: тоже да',
     className: 'relative md:absolute left-0 top-0 w-full md:w-44 rotate-[3deg]',
     cycleMs: 1800,
@@ -95,7 +97,7 @@ const guestStickers: StickerItem[] = [
   },
   {
     id: 'guest-5',
-    frames: ['/images/birthday-guests/transparent_output_3.png'],
+    frames: [asset('images/birthday-guests/transparent_output_3.png')],
     caption: 'режим наблюдателя, который первым слышит хороший трек',
     className: 'relative md:absolute left-0 top-0 w-full md:w-44 rotate-[-7deg]',
     cycleMs: 3600,
@@ -103,7 +105,7 @@ const guestStickers: StickerItem[] = [
   },
   {
     id: 'guest-6',
-    frames: ['/images/birthday-guests/final_precise.png'],
+    frames: [asset('images/birthday-guests/final_precise.png')],
     caption: 'абсолютно серьёзный человек до первого тоста',
     className: 'relative md:absolute left-0 top-0 w-full md:w-44 rotate-[5deg]',
     cycleMs: 2400,
@@ -111,7 +113,7 @@ const guestStickers: StickerItem[] = [
   },
   {
     id: 'guest-7',
-    frames: ['/images/birthday-guests/final_person4.png'],
+    frames: [asset('images/birthday-guests/final_person4.png')],
     caption: 'Наташа',
     className: 'relative md:absolute left-0 top-0 w-full md:w-44 rotate-[-4deg]',
     cycleMs: 3600,
@@ -119,7 +121,7 @@ const guestStickers: StickerItem[] = [
   },
   {
     id: 'guest-8',
-    frames: ['/images/birthday-guests/kid_fixed_v2.png'],
+    frames: [asset('images/birthday-guests/kid_fixed_v2.png')],
     caption: 'маленький герой, большой вайб',
     className: 'relative md:absolute left-0 top-0 w-full md:w-40 rotate-[3deg]',
     cycleMs: 3600,
@@ -127,7 +129,7 @@ const guestStickers: StickerItem[] = [
   },
   {
     id: 'guest-9',
-    frames: ['/images/birthday-guests/transparent_output_6.png'],
+    frames: [asset('images/birthday-guests/transparent_output_6.png')],
     caption: 'ответил как есть, набрал 3 балла, остался легендой',
     className: 'relative md:absolute left-0 top-0 w-full md:w-44 rotate-[1deg]',
     cycleMs: 3600,
@@ -135,7 +137,7 @@ const guestStickers: StickerItem[] = [
   },
   {
     id: 'guest-10',
-    frames: ['/images/birthday-guests/transparent.png'],
+    frames: [asset('images/birthday-guests/transparent.png')],
     caption: 'выглядел спокойно, но уже явно всё понимал',
     className: 'relative md:absolute left-0 top-0 w-full md:w-44 rotate-[-3deg]',
     cycleMs: 3600,
@@ -143,7 +145,7 @@ const guestStickers: StickerItem[] = [
   },
   {
     id: 'guest-11',
-    frames: ['/images/birthday-guests/bg_removed_next.png'],
+    frames: [asset('images/birthday-guests/bg_removed_next.png')],
     caption: 'человек с лицом «я пришёл и это уже красиво»',
     className: 'relative md:absolute left-0 top-0 w-full md:w-44 rotate-[4deg]',
     cycleMs: 3600,
@@ -151,7 +153,7 @@ const guestStickers: StickerItem[] = [
   },
   {
     id: 'guest-12',
-    frames: ['/images/birthday-guests/final_fixed_real.png'],
+    frames: [asset('images/birthday-guests/final_fixed_real.png')],
     caption: 'тот самый взгляд, после которого спорить уже не хочется',
     className: 'relative md:absolute left-0 top-0 w-full md:w-44 rotate-[-1deg]',
     cycleMs: 3600,
@@ -159,7 +161,7 @@ const guestStickers: StickerItem[] = [
   },
   {
     id: 'guest-13',
-    frames: ['/images/birthday-guests/bg_removed_final.png'],
+    frames: [asset('images/birthday-guests/bg_removed_final.png')],
     caption: 'будто весь дресс-код вечера заранее знал, под кого подстраиваться',
     className: 'relative md:absolute left-0 top-0 w-full md:w-44 rotate-[5deg]',
     cycleMs: 3600,
@@ -265,7 +267,7 @@ const galleryImages = [
   'DSC04786.jpg',
   'DSC04813.jpg',
   'DSC04842.jpg',
-].map((fileName) => `/images/photo-gallery/${fileName}`);
+].map((fileName) => asset(`images/photo-gallery/${fileName}`));
 
 const guestPilePlacements = [
   { index: 13, left: '47%', top: '28%', zIndex: 1 },
