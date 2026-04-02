@@ -522,7 +522,9 @@ export default function App() {
   const [progress, setProgress] = useState(0);
   const stackRef = useRef<HTMLDivElement>(null);
   const contentScrollRef = useRef<HTMLDivElement>(null);
+  const morningVideoRef = useRef<HTMLVideoElement>(null);
   const danceVideoRef = useRef<HTMLVideoElement>(null);
+  const extraCircleVideoRef = useRef<HTMLVideoElement>(null);
   const bridgeVideoRef = useRef<HTMLVideoElement>(null);
   const [stackPointer, setStackPointer] = useState({ x: 50, y: 50 });
   const [quizPointer, setQuizPointer] = useState({ x: 50, y: 50 });
@@ -655,6 +657,27 @@ export default function App() {
     window.addEventListener('keydown', onKeyDown);
     return () => window.removeEventListener('keydown', onKeyDown);
   }, [activeGalleryIndex]);
+
+  useEffect(() => {
+    if (phase !== 'content') return;
+
+    const autoplayCandidates = [
+      morningVideoRef.current,
+      extraCircleVideoRef.current,
+      bridgeVideoRef.current,
+    ].filter(Boolean) as HTMLVideoElement[];
+
+    autoplayCandidates.forEach((video) => {
+      video.defaultMuted = video.muted;
+      const tryPlay = () => {
+        void video.play().catch(() => {});
+      };
+
+      tryPlay();
+      video.addEventListener('loadeddata', tryPlay, { once: true });
+      video.addEventListener('canplay', tryPlay, { once: true });
+    });
+  }, [phase]);
 
   return (
     <div className="min-h-screen overflow-hidden bg-[radial-gradient(circle_at_top,#FFF9F2_0%,#FFE6F1_28%,#EAF7FF_58%,#FFFDF9_100%)] text-[#19182C] selection:bg-[#FF4D8D] selection:text-white">
@@ -863,12 +886,14 @@ export default function App() {
                   <div className="space-y-4">
                     <div className="overflow-hidden rounded-[2rem] border border-white/85 bg-white/78 p-4 shadow-[0_24px_60px_rgba(91,72,201,0.14)] backdrop-blur-md">
                       <video
+                        ref={morningVideoRef}
                         src={VIDEO_MORNING}
                         poster={IMAGE_MORNING_POSTER}
                         autoPlay
                         muted
                         loop
                         playsInline
+                        preload="auto"
                         className="h-[19rem] w-full rounded-[1.5rem] object-cover"
                       />
                     </div>
@@ -964,12 +989,14 @@ export default function App() {
               >
                 <div className="pointer-events-none absolute right-4 top-36 hidden h-36 w-36 overflow-hidden rounded-full border border-white/85 shadow-[0_18px_60px_rgba(91,72,201,0.18)] md:block lg:right-8 lg:top-24 lg:h-44 lg:w-44">
                   <video
+                    ref={extraCircleVideoRef}
                     src={VIDEO_EXTRA_CIRCLE}
                     poster={IMAGE_EXTRA_CIRCLE_POSTER}
                     autoPlay
                     muted
                     loop
                     playsInline
+                    preload="auto"
                     className="h-full w-full object-cover"
                   />
                 </div>
@@ -1248,6 +1275,7 @@ export default function App() {
                       muted={bridgeMuted}
                       loop
                       playsInline
+                      preload="auto"
                       className="h-full w-full object-cover"
                     />
                     <button
