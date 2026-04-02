@@ -54,10 +54,10 @@ const IMAGE_MORNING_POSTER = asset('images/moments/morning-photo.jpg');
 const IMAGE_DANCE_POSTER = asset('images/moments/dance-poster.jpg');
 const IMAGE_DANCE_WITH_NATASHA_POSTER = asset('images/moments/dance-with-natasha-poster.jpg');
 const IMAGE_EXTRA_CIRCLE_POSTER = asset('images/moments/extra-circle-poster.jpg');
-const VIDEO_MORNING = asset('videos/morning-prelude.mov');
+const VIDEO_MORNING = asset('videos/morning-prelude.mp4');
 const VIDEO_DANCE = asset('videos/dance-floor.mp4');
 const VIDEO_DANCE_WITH_NATASHA = asset('videos/dance-with-natasha.mp4');
-const VIDEO_EXTRA_CIRCLE = asset('videos/extra-circle.mov');
+const VIDEO_EXTRA_CIRCLE = asset('videos/extra-circle.mp4');
 
 const guestStickers: StickerItem[] = [
   {
@@ -851,14 +851,34 @@ export default function App() {
                 viewport={{ once: true, margin: '-120px' }}
                 className="relative z-10 mx-auto max-w-6xl px-4"
               >
-                <div className="relative mx-auto w-full max-w-xl rotate-[-2deg] rounded-[2rem] border border-white/85 bg-white/78 p-4 shadow-[0_24px_60px_rgba(91,72,201,0.14)] backdrop-blur-md md:p-5">
-                  <img
-                    src={IMAGE_MORNING_POSTER}
-                    alt="Утро перед праздником"
-                    className="h-[25rem] w-full rounded-[1.5rem] object-cover md:h-[34rem]"
-                  />
-                  <div className="mt-4 inline-flex rounded-[1.4rem] border border-white/80 bg-[linear-gradient(135deg,rgba(255,236,242,0.88),rgba(240,245,255,0.84))] px-4 py-3 text-left shadow-[0_14px_34px_rgba(91,72,201,0.12)]">
-                    <p className="font-mono text-[10px] uppercase tracking-[0.24em] text-[#6B6199]">до первого гостя</p>
+                <div className="mx-auto grid max-w-4xl gap-5 md:grid-cols-[1.05fr_0.75fr] md:items-start">
+                  <div className="rounded-[2rem] border border-white/85 bg-white/78 p-4 shadow-[0_24px_60px_rgba(91,72,201,0.14)] backdrop-blur-md md:p-5">
+                    <img
+                      src={IMAGE_MORNING_POSTER}
+                      alt="Утро перед праздником"
+                      className="h-[24rem] w-full rounded-[1.5rem] object-cover md:h-[32rem]"
+                    />
+                  </div>
+
+                  <div className="space-y-4">
+                    <div className="overflow-hidden rounded-[2rem] border border-white/85 bg-white/78 p-4 shadow-[0_24px_60px_rgba(91,72,201,0.14)] backdrop-blur-md">
+                      <video
+                        src={VIDEO_MORNING}
+                        poster={IMAGE_MORNING_POSTER}
+                        autoPlay
+                        muted
+                        loop
+                        playsInline
+                        className="h-[19rem] w-full rounded-[1.5rem] object-cover"
+                      />
+                    </div>
+
+                    <div className="rounded-[1.6rem] border border-white/80 bg-[linear-gradient(135deg,rgba(255,236,242,0.88),rgba(240,245,255,0.84))] px-5 py-4 shadow-[0_14px_34px_rgba(91,72,201,0.12)]">
+                      <p className="font-mono text-[10px] uppercase tracking-[0.24em] text-[#6B6199]">до первого гостя</p>
+                      <p className="mt-3 text-base leading-relaxed text-[#433C64]">
+                        утро именинницы в халатике. вид человека, который ещё не в курсе, сколько танцев сегодня придётся выдержать.
+                      </p>
+                    </div>
                   </div>
                 </div>
               </motion.div>
