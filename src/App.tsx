@@ -538,7 +538,7 @@ export default function App() {
 
   useEffect(() => {
     if (phase !== 'loading') return;
-    const totalMs = 6000;
+    const totalMs = 3000;
     const startTime = performance.now();
     let rafId = 0;
 
@@ -594,12 +594,18 @@ export default function App() {
       return;
     }
 
+    video.muted = true;
+    video.defaultMuted = true;
     if (video.currentTime >= 40) {
       video.currentTime = 0;
     }
 
-    await video.play();
-    setDancePlaying(true);
+    try {
+      await video.play();
+      setDancePlaying(true);
+    } catch {
+      setDancePlaying(false);
+    }
   };
 
   const handleBridgeSoundToggle = () => {
@@ -612,6 +618,22 @@ export default function App() {
     if (video.paused) {
       void video.play();
     }
+  };
+
+  const handleBridgeVideoToggle = async () => {
+    const video = bridgeVideoRef.current;
+    if (!video) return;
+
+    if (video.paused) {
+      try {
+        await video.play();
+      } catch {
+        // ignore autoplay/playback failures
+      }
+      return;
+    }
+
+    video.pause();
   };
 
   useEffect(() => {
@@ -874,36 +896,34 @@ export default function App() {
                 viewport={{ once: true, margin: '-120px' }}
                 className="relative z-10 mx-auto max-w-6xl px-4"
               >
-                <div className="mx-auto grid max-w-4xl gap-5 md:grid-cols-[1.05fr_0.75fr] md:items-start">
-                  <div className="rounded-[2rem] border border-white/85 bg-white/78 p-4 shadow-[0_24px_60px_rgba(91,72,201,0.14)] backdrop-blur-md md:p-5">
+                <div className="relative mx-auto flex w-full max-w-5xl flex-col items-center gap-4 md:min-h-[38rem]">
+                  <div className="relative z-10 w-full max-w-xl rotate-[-3deg] rounded-[2rem] border border-white/85 bg-white/78 p-4 shadow-[0_24px_60px_rgba(91,72,201,0.14)] backdrop-blur-md md:absolute md:left-[7%] md:top-8 md:max-w-[28rem] md:p-5">
                     <img
                       src={IMAGE_MORNING_POSTER}
                       alt="Утро перед праздником"
-                      className="h-[24rem] w-full rounded-[1.5rem] object-cover md:h-[32rem]"
+                      className="h-[22rem] w-full rounded-[1.5rem] object-cover md:h-[30rem]"
                     />
                   </div>
 
-                  <div className="space-y-4">
-                    <div className="overflow-hidden rounded-[2rem] border border-white/85 bg-white/78 p-4 shadow-[0_24px_60px_rgba(91,72,201,0.14)] backdrop-blur-md">
-                      <video
-                        ref={morningVideoRef}
-                        src={VIDEO_MORNING}
-                        poster={IMAGE_MORNING_POSTER}
-                        autoPlay
-                        muted
-                        loop
-                        playsInline
-                        preload="auto"
-                        className="h-[19rem] w-full rounded-[1.5rem] object-cover"
-                      />
-                    </div>
+                  <div className="relative z-20 w-full max-w-sm rotate-[3deg] overflow-hidden rounded-[2rem] border border-white/85 bg-white/78 p-4 shadow-[0_24px_60px_rgba(91,72,201,0.14)] backdrop-blur-md md:absolute md:right-[9%] md:top-20 md:max-w-[18rem]">
+                    <video
+                      ref={morningVideoRef}
+                      src={VIDEO_MORNING}
+                      poster={IMAGE_MORNING_POSTER}
+                      autoPlay
+                      muted
+                      loop
+                      playsInline
+                      preload="auto"
+                      className="h-[17rem] w-full rounded-[1.5rem] object-cover md:h-[20rem]"
+                    />
+                  </div>
 
-                    <div className="rounded-[1.6rem] border border-white/80 bg-[linear-gradient(135deg,rgba(255,236,242,0.88),rgba(240,245,255,0.84))] px-5 py-4 shadow-[0_14px_34px_rgba(91,72,201,0.12)]">
-                      <p className="font-mono text-[10px] uppercase tracking-[0.24em] text-[#6B6199]">до первого гостя</p>
-                      <p className="mt-3 text-base leading-relaxed text-[#433C64]">
-                        утро именинницы в халатике. вид человека, который ещё не в курсе, сколько танцев сегодня придётся выдержать.
-                      </p>
-                    </div>
+                  <div className="relative z-30 w-full max-w-md rotate-[-4deg] rounded-[1.7rem] border border-white/80 bg-[linear-gradient(135deg,rgba(255,236,242,0.9),rgba(240,245,255,0.86))] px-5 py-4 shadow-[0_14px_34px_rgba(91,72,201,0.12)] md:absolute md:left-[12%] md:bottom-6">
+                    <p className="font-mono text-[10px] uppercase tracking-[0.24em] text-[#6B6199]">до первого гостя</p>
+                    <p className="mt-3 text-base leading-relaxed text-[#433C64]">
+                      утро именинницы в халатике. вид человека, который ещё не в курсе, сколько танцев сегодня придётся выдержать.
+                    </p>
                   </div>
                 </div>
               </motion.div>
@@ -1277,11 +1297,25 @@ export default function App() {
                       playsInline
                       preload="auto"
                       className="h-full w-full object-cover"
+                      onLoadedData={() => {
+                        const video = bridgeVideoRef.current;
+                        if (!video || !video.paused) return;
+                        void video.play().catch(() => {});
+                      }}
                     />
                     <button
                       type="button"
-                      onClick={handleBridgeSoundToggle}
-                      className="absolute bottom-3 right-3 inline-flex h-11 w-11 items-center justify-center rounded-full border border-white/80 bg-white/88 text-[#1F1A35] shadow-[0_12px_24px_rgba(91,72,201,0.16)] backdrop-blur-md transition-transform duration-200 hover:scale-105"
+                      onClick={handleBridgeVideoToggle}
+                      className="absolute inset-0 z-10"
+                      aria-label="Переключить видео"
+                    />
+                    <button
+                      type="button"
+                      onClick={(event) => {
+                        event.stopPropagation();
+                        handleBridgeSoundToggle();
+                      }}
+                      className="absolute bottom-3 right-3 z-20 inline-flex h-11 w-11 items-center justify-center rounded-full border border-white/80 bg-white/88 text-[#1F1A35] shadow-[0_12px_24px_rgba(91,72,201,0.16)] backdrop-blur-md transition-transform duration-200 hover:scale-105"
                       aria-label={bridgeMuted ? 'Включить звук' : 'Выключить звук'}
                     >
                       {bridgeMuted ? <VolumeX className="h-5 w-5" /> : <Volume2 className="h-5 w-5" />}
