@@ -348,6 +348,13 @@ function playGiftSound() {
   });
 }
 
+function safePlay(video: HTMLVideoElement | null) {
+  if (!video) return;
+  video.playsInline = true;
+  video.defaultMuted = video.muted;
+  void video.play().catch(() => {});
+}
+
 type FloatingStickerProps = {
   item: StickerItem;
   drag?: boolean;
@@ -596,6 +603,7 @@ export default function App() {
 
     video.muted = true;
     video.defaultMuted = true;
+    video.playsInline = true;
     if (video.currentTime >= 40) {
       video.currentTime = 0;
     }
@@ -614,9 +622,10 @@ export default function App() {
     const nextMuted = !video.muted;
     video.muted = nextMuted;
     video.defaultMuted = nextMuted;
+    video.playsInline = true;
     setBridgeMuted(nextMuted);
     if (video.paused) {
-      void video.play();
+      safePlay(video);
     }
   };
 
@@ -626,6 +635,7 @@ export default function App() {
 
     if (video.paused) {
       try {
+        video.playsInline = true;
         await video.play();
       } catch {
         // ignore autoplay/playback failures
@@ -954,10 +964,14 @@ export default function App() {
                       ref={danceVideoRef}
                       src={VIDEO_DANCE}
                       poster={IMAGE_DANCE_POSTER}
+                      muted
                       playsInline
-                      preload="metadata"
+                      preload="auto"
                       className="h-full w-full object-cover"
                       onPause={() => setDancePlaying(false)}
+                      onLoadedData={() => safePlay(danceVideoRef.current)}
+                      onCanPlay={() => safePlay(danceVideoRef.current)}
+                      onPlay={() => setDancePlaying(true)}
                       onEnded={() => {
                         const video = danceVideoRef.current;
                         if (!video) return;
@@ -1298,10 +1312,9 @@ export default function App() {
                       preload="auto"
                       className="h-full w-full object-cover"
                       onLoadedData={() => {
-                        const video = bridgeVideoRef.current;
-                        if (!video || !video.paused) return;
-                        void video.play().catch(() => {});
+                        safePlay(bridgeVideoRef.current);
                       }}
+                      onCanPlay={() => safePlay(bridgeVideoRef.current)}
                     />
                     <button
                       type="button"
