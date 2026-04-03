@@ -529,6 +529,7 @@ export default function App() {
   const [progress, setProgress] = useState(0);
   const stackRef = useRef<HTMLDivElement>(null);
   const contentScrollRef = useRef<HTMLDivElement>(null);
+  const danceSectionRef = useRef<HTMLElement>(null);
   const morningVideoRef = useRef<HTMLVideoElement>(null);
   const danceVideoRef = useRef<HTMLVideoElement>(null);
   const extraCircleVideoRef = useRef<HTMLVideoElement>(null);
@@ -541,6 +542,8 @@ export default function App() {
   const [dancePlaying, setDancePlaying] = useState(false);
   const [danceHovered, setDanceHovered] = useState(false);
   const [danceMuted, setDanceMuted] = useState(true);
+  const [danceInView, setDanceInView] = useState(false);
+  const [audioUnlocked, setAudioUnlocked] = useState(false);
   const [activeGalleryIndex, setActiveGalleryIndex] = useState<number | null>(null);
   const [bridgeMuted, setBridgeMuted] = useState(true);
 
@@ -636,6 +639,40 @@ export default function App() {
     }
   };
 
+  const muteDanceVideo = (pause = false) => {
+    const video = danceVideoRef.current;
+    if (!video) return;
+    video.muted = true;
+    video.defaultMuted = true;
+    video.volume = 0;
+    setDanceMuted(true);
+    if (pause && !video.paused) {
+      video.pause();
+      setDancePlaying(false);
+    }
+  };
+
+  const tryEnableDanceAudio = async () => {
+    const video = danceVideoRef.current;
+    if (!video) return false;
+
+    video.muted = false;
+    video.defaultMuted = false;
+    video.volume = 1;
+    video.playsInline = true;
+    setDanceMuted(false);
+
+    try {
+      await video.play();
+      setDancePlaying(true);
+      return true;
+    } catch {
+      muteDanceVideo(false);
+      void safePlay(video);
+      return false;
+    }
+  };
+
   const handleBridgeSoundToggle = () => {
     const video = bridgeVideoRef.current;
     if (!video) return;
@@ -711,6 +748,41 @@ export default function App() {
   }, [activeGalleryIndex]);
 
   useEffect(() => {
+    if (phase !== 'content' || !danceSectionRef.current) return;
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        setDanceInView(entry.isIntersecting && entry.intersectionRatio > 0.55);
+      },
+      { threshold: [0.25, 0.55, 0.8] },
+    );
+
+    observer.observe(danceSectionRef.current);
+    return () => observer.disconnect();
+  }, [phase]);
+
+  useEffect(() => {
+    if (phase !== 'content') return;
+
+    const unlockAudio = () => {
+      setAudioUnlocked(true);
+      if (danceInView) {
+        void tryEnableDanceAudio();
+      }
+    };
+
+    window.addEventListener('pointerdown', unlockAudio, { passive: true });
+    window.addEventListener('touchstart', unlockAudio, { passive: true });
+    window.addEventListener('keydown', unlockAudio);
+
+    return () => {
+      window.removeEventListener('pointerdown', unlockAudio);
+      window.removeEventListener('touchstart', unlockAudio);
+      window.removeEventListener('keydown', unlockAudio);
+    };
+  }, [phase, danceInView]);
+
+  useEffect(() => {
     if (phase !== 'content') return;
 
     const autoplayCandidates = [
@@ -730,6 +802,31 @@ export default function App() {
       video.addEventListener('canplay', tryPlay, { once: true });
     });
   }, [phase]);
+
+  useEffect(() => {
+    if (phase !== 'content') return;
+
+    const video = danceVideoRef.current;
+    if (!video) return;
+
+    if (danceInView) {
+      video.playsInline = true;
+      if (video.currentTime >= 40) {
+        video.currentTime = 0;
+      }
+
+      if (audioUnlocked) {
+        void tryEnableDanceAudio();
+        return;
+      }
+
+      muteDanceVideo(false);
+      void safePlay(video);
+      return;
+    }
+
+    muteDanceVideo(true);
+  }, [phase, danceInView, audioUnlocked]);
 
   return (
     <div className="min-h-screen overflow-hidden bg-[radial-gradient(circle_at_top,#FFF9F2_0%,#FFE6F1_28%,#EAF7FF_58%,#FFFDF9_100%)] text-[#19182C] selection:bg-[#FF4D8D] selection:text-white">
@@ -959,7 +1056,7 @@ export default function App() {
               </motion.div>
             </section>
 
-            <section className="relative overflow-hidden py-10 md:py-16">
+            <section ref={danceSectionRef} className="relative overflow-hidden py-10 md:py-16">
               <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(255,236,246,0.84)_0%,rgba(235,245,255,0.86)_46%,rgba(255,255,255,0)_100%)]" />
 
               <motion.div
