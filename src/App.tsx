@@ -541,7 +541,7 @@ export default function App() {
   const [savedScrollTop, setSavedScrollTop] = useState(0);
   const [dancePlaying, setDancePlaying] = useState(false);
   const [danceHovered, setDanceHovered] = useState(false);
-  const [danceMuted, setDanceMuted] = useState(true);
+  const [danceMuted, setDanceMuted] = useState(false);
   const [danceInView, setDanceInView] = useState(false);
   const [audioUnlocked, setAudioUnlocked] = useState(false);
   const [activeGalleryIndex, setActiveGalleryIndex] = useState<number | null>(null);
@@ -820,7 +820,9 @@ export default function App() {
         return;
       }
 
-      muteDanceVideo(false);
+      video.muted = true;
+      video.defaultMuted = true;
+      video.volume = 0;
       void safePlay(video);
       return;
     }
@@ -1070,65 +1072,67 @@ export default function App() {
                     <Music className="h-4 w-4 text-[#8A6BFF]" />
                     А потом начались... THE ТАНЦЫ!
                   </div>
-                  <button
-                    type="button"
-                    onClick={handleDanceToggle}
-                    onMouseEnter={() => setDanceHovered(true)}
-                    onMouseLeave={() => setDanceHovered(false)}
-                    className="group relative h-72 w-72 overflow-hidden rounded-full border border-white/85 shadow-[0_28px_80px_rgba(91,72,201,0.18)] focus:outline-none md:h-[22rem] md:w-[22rem]"
-                  >
-                    <video
-                      ref={danceVideoRef}
-                      src={VIDEO_DANCE}
-                      poster={IMAGE_DANCE_POSTER}
-                      muted={danceMuted}
-                      playsInline
-                      preload="auto"
-                      className="h-full w-full object-cover"
-                      onPause={() => setDancePlaying(false)}
-                      onLoadedData={() => safePlay(danceVideoRef.current)}
-                      onCanPlay={() => safePlay(danceVideoRef.current)}
-                      onPlay={() => setDancePlaying(true)}
-                      onEnded={() => {
-                        const video = danceVideoRef.current;
-                        if (!video) return;
-                        video.currentTime = 0;
-                        setDancePlaying(false);
-                      }}
-                      onTimeUpdate={() => {
-                        const video = danceVideoRef.current;
-                        if (!video) return;
-                        if (video.currentTime >= 40) {
-                          video.pause();
+                  <div className="relative h-72 w-72 md:h-[22rem] md:w-[22rem]">
+                    <button
+                      type="button"
+                      onClick={handleDanceToggle}
+                      onMouseEnter={() => setDanceHovered(true)}
+                      onMouseLeave={() => setDanceHovered(false)}
+                      className="group relative h-full w-full overflow-hidden rounded-full border border-white/85 shadow-[0_28px_80px_rgba(91,72,201,0.18)] focus:outline-none"
+                    >
+                      <video
+                        ref={danceVideoRef}
+                        src={VIDEO_DANCE}
+                        poster={IMAGE_DANCE_POSTER}
+                        muted={danceMuted}
+                        playsInline
+                        preload="auto"
+                        className="h-full w-full object-cover"
+                        onPause={() => setDancePlaying(false)}
+                        onLoadedData={() => safePlay(danceVideoRef.current)}
+                        onCanPlay={() => safePlay(danceVideoRef.current)}
+                        onPlay={() => setDancePlaying(true)}
+                        onEnded={() => {
+                          const video = danceVideoRef.current;
+                          if (!video) return;
                           video.currentTime = 0;
                           setDancePlaying(false);
-                        }
-                      }}
-                    />
-                    <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(20,14,45,0.04),rgba(20,14,45,0.32))]" />
-                    {danceHovered && (
-                      <div className="absolute inset-0 flex items-center justify-center">
-                        <div className="flex h-20 w-20 items-center justify-center rounded-full border border-white/80 bg-white/86 shadow-[0_16px_40px_rgba(91,72,201,0.18)] transition-transform duration-200 group-hover:scale-105">
-                          {dancePlaying ? (
-                            <Pause className="h-8 w-8 text-[#1F1A35]" />
-                          ) : (
-                            <Play className="ml-1 h-8 w-8 text-[#1F1A35]" />
-                          )}
+                        }}
+                        onTimeUpdate={() => {
+                          const video = danceVideoRef.current;
+                          if (!video) return;
+                          if (video.currentTime >= 40) {
+                            video.pause();
+                            video.currentTime = 0;
+                            setDancePlaying(false);
+                          }
+                        }}
+                      />
+                      <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(20,14,45,0.04),rgba(20,14,45,0.32))]" />
+                      {danceHovered && (
+                        <div className="absolute inset-0 flex items-center justify-center">
+                          <div className="flex h-20 w-20 items-center justify-center rounded-full border border-white/80 bg-white/86 shadow-[0_16px_40px_rgba(91,72,201,0.18)] transition-transform duration-200 group-hover:scale-105">
+                            {dancePlaying ? (
+                              <Pause className="h-8 w-8 text-[#1F1A35]" />
+                            ) : (
+                              <Play className="ml-1 h-8 w-8 text-[#1F1A35]" />
+                            )}
+                          </div>
                         </div>
-                      </div>
-                    )}
+                      )}
+                    </button>
                     <button
                       type="button"
                       onClick={(event) => {
                         event.stopPropagation();
                         void handleDanceSoundToggle();
                       }}
-                      className="absolute bottom-4 right-4 z-20 inline-flex h-11 w-11 items-center justify-center rounded-full border border-white/80 bg-white/88 text-[#1F1A35] shadow-[0_12px_24px_rgba(91,72,201,0.16)] backdrop-blur-md transition-transform duration-200 hover:scale-105"
+                      className="absolute bottom-2 right-2 z-30 inline-flex h-12 w-12 items-center justify-center rounded-full border border-white/85 bg-white text-[#1F1A35] shadow-[0_12px_24px_rgba(91,72,201,0.18)] backdrop-blur-md transition-transform duration-200 hover:scale-105 md:bottom-3 md:right-3"
                       aria-label={danceMuted ? 'Включить звук' : 'Выключить звук'}
                     >
                       {danceMuted ? <VolumeX className="h-5 w-5" /> : <Volume2 className="h-5 w-5" />}
                     </button>
-                  </button>
+                  </div>
                   <div className="mt-5 max-w-xl rounded-[1.8rem] border border-white/80 bg-white/76 px-5 py-4 text-center shadow-[0_18px_40px_rgba(91,72,201,0.12)] backdrop-blur-md">
                     <p className="font-mono text-[10px] uppercase tracking-[0.24em] text-[#6B6199]">play 40 seconds</p>
                     <p className="mt-2 text-base leading-relaxed text-[#433C64]">
