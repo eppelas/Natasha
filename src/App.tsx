@@ -540,6 +540,7 @@ export default function App() {
   const [savedScrollTop, setSavedScrollTop] = useState(0);
   const [dancePlaying, setDancePlaying] = useState(false);
   const [danceHovered, setDanceHovered] = useState(false);
+  const [danceMuted, setDanceMuted] = useState(true);
   const [activeGalleryIndex, setActiveGalleryIndex] = useState<number | null>(null);
   const [bridgeMuted, setBridgeMuted] = useState(true);
 
@@ -601,8 +602,8 @@ export default function App() {
       return;
     }
 
-    video.muted = true;
-    video.defaultMuted = true;
+    video.muted = danceMuted;
+    video.defaultMuted = danceMuted;
     video.playsInline = true;
     if (video.currentTime >= 40) {
       video.currentTime = 0;
@@ -613,6 +614,25 @@ export default function App() {
       setDancePlaying(true);
     } catch {
       setDancePlaying(false);
+    }
+  };
+
+  const handleDanceSoundToggle = async () => {
+    const video = danceVideoRef.current;
+    if (!video) return;
+
+    const nextMuted = !video.muted;
+    video.muted = nextMuted;
+    video.defaultMuted = nextMuted;
+    video.volume = 1;
+    video.playsInline = true;
+    setDanceMuted(nextMuted);
+
+    try {
+      await video.play();
+      setDancePlaying(true);
+    } catch {
+      setDancePlaying(!video.paused);
     }
   };
 
@@ -964,7 +984,7 @@ export default function App() {
                       ref={danceVideoRef}
                       src={VIDEO_DANCE}
                       poster={IMAGE_DANCE_POSTER}
-                      muted
+                      muted={danceMuted}
                       playsInline
                       preload="auto"
                       className="h-full w-full object-cover"
@@ -1000,6 +1020,17 @@ export default function App() {
                         </div>
                       </div>
                     )}
+                    <button
+                      type="button"
+                      onClick={(event) => {
+                        event.stopPropagation();
+                        void handleDanceSoundToggle();
+                      }}
+                      className="absolute bottom-4 right-4 z-20 inline-flex h-11 w-11 items-center justify-center rounded-full border border-white/80 bg-white/88 text-[#1F1A35] shadow-[0_12px_24px_rgba(91,72,201,0.16)] backdrop-blur-md transition-transform duration-200 hover:scale-105"
+                      aria-label={danceMuted ? 'Включить звук' : 'Выключить звук'}
+                    >
+                      {danceMuted ? <VolumeX className="h-5 w-5" /> : <Volume2 className="h-5 w-5" />}
+                    </button>
                   </button>
                   <div className="mt-5 max-w-xl rounded-[1.8rem] border border-white/80 bg-white/76 px-5 py-4 text-center shadow-[0_18px_40px_rgba(91,72,201,0.12)] backdrop-blur-md">
                     <p className="font-mono text-[10px] uppercase tracking-[0.24em] text-[#6B6199]">play 40 seconds</p>
