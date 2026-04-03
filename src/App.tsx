@@ -9,8 +9,6 @@ import {
   Gift,
   Headphones,
   Music,
-  Pause,
-  Play,
   Quote,
   RotateCw,
   Sparkles,
@@ -90,7 +88,7 @@ const guestStickers: StickerItem[] = [
   {
     id: 'guest-4',
     frames: [asset('images/birthday-guests/transparent_output_7.png')],
-    caption: 'блестящее платье: да. внутренний свет: тоже да',
+    caption: 'улыбка, будто она уже знает, кто тут выиграл',
     className: 'relative md:absolute left-0 top-0 w-full md:w-44 rotate-[3deg]',
     cycleMs: 1800,
     glow: 'rgba(255, 90, 183, 0.28)',
@@ -539,11 +537,8 @@ export default function App() {
   const [galleryPointer, setGalleryPointer] = useState({ x: 50, y: 50 });
   const [bridgePointer, setBridgePointer] = useState({ x: 50, y: 50 });
   const [savedScrollTop, setSavedScrollTop] = useState(0);
-  const [dancePlaying, setDancePlaying] = useState(false);
-  const [danceHovered, setDanceHovered] = useState(false);
-  const [danceMuted, setDanceMuted] = useState(false);
+  const [danceMuted, setDanceMuted] = useState(true);
   const [danceInView, setDanceInView] = useState(false);
-  const [audioUnlocked, setAudioUnlocked] = useState(false);
   const [activeGalleryIndex, setActiveGalleryIndex] = useState<number | null>(null);
   const [bridgeMuted, setBridgeMuted] = useState(true);
 
@@ -595,84 +590,6 @@ export default function App() {
     setActiveGalleryIndex((activeGalleryIndex - 1 + galleryImages.length) % galleryImages.length);
   };
 
-  const handleDanceToggle = async () => {
-    const video = danceVideoRef.current;
-    if (!video) return;
-
-    if (dancePlaying) {
-      video.pause();
-      setDancePlaying(false);
-      return;
-    }
-
-    video.muted = danceMuted;
-    video.defaultMuted = danceMuted;
-    video.playsInline = true;
-    if (video.currentTime >= 40) {
-      video.currentTime = 0;
-    }
-
-    try {
-      await video.play();
-      setDancePlaying(true);
-    } catch {
-      setDancePlaying(false);
-    }
-  };
-
-  const handleDanceSoundToggle = async () => {
-    const video = danceVideoRef.current;
-    if (!video) return;
-
-    const nextMuted = !video.muted;
-    video.muted = nextMuted;
-    video.defaultMuted = nextMuted;
-    video.volume = 1;
-    video.playsInline = true;
-    setDanceMuted(nextMuted);
-
-    try {
-      await video.play();
-      setDancePlaying(true);
-    } catch {
-      setDancePlaying(!video.paused);
-    }
-  };
-
-  const muteDanceVideo = (pause = false) => {
-    const video = danceVideoRef.current;
-    if (!video) return;
-    video.muted = true;
-    video.defaultMuted = true;
-    video.volume = 0;
-    setDanceMuted(true);
-    if (pause && !video.paused) {
-      video.pause();
-      setDancePlaying(false);
-    }
-  };
-
-  const tryEnableDanceAudio = async () => {
-    const video = danceVideoRef.current;
-    if (!video) return false;
-
-    video.muted = false;
-    video.defaultMuted = false;
-    video.volume = 1;
-    video.playsInline = true;
-    setDanceMuted(false);
-
-    try {
-      await video.play();
-      setDancePlaying(true);
-      return true;
-    } catch {
-      muteDanceVideo(false);
-      void safePlay(video);
-      return false;
-    }
-  };
-
   const handleBridgeSoundToggle = () => {
     const video = bridgeVideoRef.current;
     if (!video) return;
@@ -683,6 +600,26 @@ export default function App() {
     setBridgeMuted(nextMuted);
     if (video.paused) {
       safePlay(video);
+    }
+  };
+
+  const handleDanceSoundToggle = async () => {
+    const video = danceVideoRef.current;
+    if (!video) return;
+
+    const nextMuted = !video.muted;
+    video.muted = nextMuted;
+    video.defaultMuted = nextMuted;
+    video.volume = nextMuted ? 0 : 1;
+    video.playsInline = true;
+    setDanceMuted(nextMuted);
+
+    if (video.paused) {
+      try {
+        await video.play();
+      } catch {
+        // ignore playback failure
+      }
     }
   };
 
@@ -748,13 +685,13 @@ export default function App() {
   }, [activeGalleryIndex]);
 
   useEffect(() => {
-    if (phase !== 'content' || !danceSectionRef.current) return;
+    if (phase !== 'content' || !danceSectionRef.current || !contentScrollRef.current) return;
 
     const observer = new IntersectionObserver(
       ([entry]) => {
         setDanceInView(entry.isIntersecting && entry.intersectionRatio > 0.55);
       },
-      { threshold: [0.25, 0.55, 0.8] },
+      { root: contentScrollRef.current, threshold: [0.25, 0.55, 0.8] },
     );
 
     observer.observe(danceSectionRef.current);
@@ -764,29 +701,9 @@ export default function App() {
   useEffect(() => {
     if (phase !== 'content') return;
 
-    const unlockAudio = () => {
-      setAudioUnlocked(true);
-      if (danceInView) {
-        void tryEnableDanceAudio();
-      }
-    };
-
-    window.addEventListener('pointerdown', unlockAudio, { passive: true });
-    window.addEventListener('touchstart', unlockAudio, { passive: true });
-    window.addEventListener('keydown', unlockAudio);
-
-    return () => {
-      window.removeEventListener('pointerdown', unlockAudio);
-      window.removeEventListener('touchstart', unlockAudio);
-      window.removeEventListener('keydown', unlockAudio);
-    };
-  }, [phase, danceInView]);
-
-  useEffect(() => {
-    if (phase !== 'content') return;
-
     const autoplayCandidates = [
       morningVideoRef.current,
+      danceVideoRef.current,
       extraCircleVideoRef.current,
       bridgeVideoRef.current,
     ].filter(Boolean) as HTMLVideoElement[];
@@ -811,24 +728,21 @@ export default function App() {
 
     if (danceInView) {
       video.playsInline = true;
-      if (video.currentTime >= 40) {
-        video.currentTime = 0;
-      }
-
-      if (audioUnlocked) {
-        void tryEnableDanceAudio();
-        return;
-      }
-
       video.muted = true;
       video.defaultMuted = true;
       video.volume = 0;
+      setDanceMuted(true);
+      if (video.currentTime >= 40) {
+        video.currentTime = 0;
+      }
       void safePlay(video);
       return;
     }
 
-    muteDanceVideo(true);
-  }, [phase, danceInView, audioUnlocked]);
+    if (!video.paused) {
+      video.pause();
+    }
+  }, [phase, danceInView]);
 
   return (
     <div className="min-h-screen overflow-hidden bg-[radial-gradient(circle_at_top,#FFF9F2_0%,#FFE6F1_28%,#EAF7FF_58%,#FFFDF9_100%)] text-[#19182C] selection:bg-[#FF4D8D] selection:text-white">
@@ -1073,30 +987,22 @@ export default function App() {
                     А потом начались... THE ТАНЦЫ!
                   </div>
                   <div className="relative h-72 w-72 md:h-[22rem] md:w-[22rem]">
-                    <button
-                      type="button"
-                      onClick={handleDanceToggle}
-                      onMouseEnter={() => setDanceHovered(true)}
-                      onMouseLeave={() => setDanceHovered(false)}
-                      className="group relative h-full w-full overflow-hidden rounded-full border border-white/85 shadow-[0_28px_80px_rgba(91,72,201,0.18)] focus:outline-none"
-                    >
+                    <div className="relative h-full w-full overflow-hidden rounded-full border border-white/85 shadow-[0_28px_80px_rgba(91,72,201,0.18)]">
                       <video
                         ref={danceVideoRef}
                         src={VIDEO_DANCE}
                         poster={IMAGE_DANCE_POSTER}
-                        muted={danceMuted}
+                        autoPlay
+                        muted
                         playsInline
                         preload="auto"
                         className="h-full w-full object-cover"
-                        onPause={() => setDancePlaying(false)}
                         onLoadedData={() => safePlay(danceVideoRef.current)}
                         onCanPlay={() => safePlay(danceVideoRef.current)}
-                        onPlay={() => setDancePlaying(true)}
                         onEnded={() => {
                           const video = danceVideoRef.current;
                           if (!video) return;
                           video.currentTime = 0;
-                          setDancePlaying(false);
                         }}
                         onTimeUpdate={() => {
                           const video = danceVideoRef.current;
@@ -1104,33 +1010,21 @@ export default function App() {
                           if (video.currentTime >= 40) {
                             video.pause();
                             video.currentTime = 0;
-                            setDancePlaying(false);
                           }
                         }}
                       />
                       <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(20,14,45,0.04),rgba(20,14,45,0.32))]" />
-                      {danceHovered && (
-                        <div className="absolute inset-0 flex items-center justify-center">
-                          <div className="flex h-20 w-20 items-center justify-center rounded-full border border-white/80 bg-white/86 shadow-[0_16px_40px_rgba(91,72,201,0.18)] transition-transform duration-200 group-hover:scale-105">
-                            {dancePlaying ? (
-                              <Pause className="h-8 w-8 text-[#1F1A35]" />
-                            ) : (
-                              <Play className="ml-1 h-8 w-8 text-[#1F1A35]" />
-                            )}
-                          </div>
-                        </div>
-                      )}
-                    </button>
+                    </div>
                     <button
                       type="button"
                       onClick={(event) => {
                         event.stopPropagation();
                         void handleDanceSoundToggle();
                       }}
-                      className="absolute bottom-2 right-2 z-30 inline-flex h-12 w-12 items-center justify-center rounded-full border border-white/85 bg-white text-[#1F1A35] shadow-[0_12px_24px_rgba(91,72,201,0.18)] backdrop-blur-md transition-transform duration-200 hover:scale-105 md:bottom-3 md:right-3"
+                      className="absolute -bottom-2 -right-2 z-40 inline-flex h-14 w-14 items-center justify-center rounded-full border border-white/85 bg-white text-[#1F1A35] shadow-[0_16px_32px_rgba(91,72,201,0.2)] backdrop-blur-md transition-transform duration-200 hover:scale-105 md:-bottom-3 md:-right-3"
                       aria-label={danceMuted ? 'Включить звук' : 'Выключить звук'}
                     >
-                      {danceMuted ? <VolumeX className="h-5 w-5" /> : <Volume2 className="h-5 w-5" />}
+                      {danceMuted ? <VolumeX className="h-6 w-6" /> : <Volume2 className="h-6 w-6" />}
                     </button>
                   </div>
                   <div className="mt-5 max-w-xl rounded-[1.8rem] border border-white/80 bg-white/76 px-5 py-4 text-center shadow-[0_18px_40px_rgba(91,72,201,0.12)] backdrop-blur-md">
