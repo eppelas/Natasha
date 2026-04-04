@@ -88,7 +88,7 @@ const guestStickers: StickerItem[] = [
   {
     id: 'guest-4',
     frames: [asset('images/birthday-guests/transparent_output_7.png')],
-    caption: 'улыбка, будто она уже знает, кто тут выиграл',
+    caption: 'улыбка уровня: всё идёт как надо',
     className: 'relative md:absolute left-0 top-0 w-full md:w-44 rotate-[3deg]',
     cycleMs: 1800,
     glow: 'rgba(255, 90, 183, 0.28)',
@@ -136,7 +136,7 @@ const guestStickers: StickerItem[] = [
   {
     id: 'guest-10',
     frames: [asset('images/birthday-guests/transparent.png')],
-    caption: 'выглядел спокойно, но уже явно всё понимал',
+    caption: 'блестящее платье: да. внутренний свет: тоже да',
     className: 'relative md:absolute left-0 top-0 w-full md:w-44 rotate-[-3deg]',
     cycleMs: 3600,
     glow: 'rgba(92, 185, 255, 0.22)',
